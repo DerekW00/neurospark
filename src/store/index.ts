@@ -1,6 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Goal, Task, CheckIn, EnergyLog, CalendarEvent } from '../types';
+import {
+    getUserGoals,
+    createGoal as createFirestoreGoal,
+    updateGoal as updateFirestoreGoal,
+    deleteGoal as deleteFirestoreGoal,
+    addTask as addFirestoreTask,
+    updateTask as updateFirestoreTask,
+    deleteTask as deleteFirestoreTask,
+    completeTask as completeFirestoreTask
+} from '@/services/firestore/goals';
 
 interface AppState {
     // User state
@@ -15,6 +25,7 @@ interface AppState {
     // Goals and tasks
     goals: Goal[];
     currentGoal?: Goal;
+    isLoading: boolean;
 
     // Calendar
     calendarEvents: CalendarEvent[];
@@ -36,15 +47,16 @@ interface AppState {
     logout: () => void;
 
     // Goal/Task actions
-    addGoal: (goal: Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>) => void;
-    updateGoal: (goalId: string, updates: Partial<Omit<Goal, 'id' | 'tasks'>>) => void;
-    deleteGoal: (goalId: string) => void;
+    loadGoals: () => Promise<void>;
+    addGoal: (goal: Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string>;
+    updateGoal: (goalId: string, updates: Partial<Omit<Goal, 'id' | 'tasks'>>) => Promise<void>;
+    deleteGoal: (goalId: string) => Promise<void>;
     setCurrentGoal: (goalId: string) => void;
 
-    addTask: (goalId: string, task: Omit<Task, 'id' | 'goalId' | 'createdAt' | 'updatedAt'>) => void;
-    updateTask: (taskId: string, updates: Partial<Omit<Task, 'id' | 'goalId'>>) => void;
-    deleteTask: (taskId: string) => void;
-    completeTask: (taskId: string) => void;
+    addTask: (goalId: string, task: Omit<Task, 'id' | 'goalId' | 'createdAt' | 'updatedAt'>) => Promise<string>;
+    updateTask: (taskId: string, updates: Partial<Omit<Task, 'id' | 'goalId'>>) => Promise<void>;
+    deleteTask: (taskId: string) => Promise<void>;
+    completeTask: (taskId: string) => Promise<void>;
 
     // Calendar actions
     setCalendarConnected: (connected: boolean) => void;
@@ -78,6 +90,7 @@ export const useAppStore = create<AppState>()(
             },
             goals: [],
             currentGoal: undefined,
+            isLoading: false,
             calendarEvents: [],
             calendarConnected: false,
             checkIns: [],
@@ -87,105 +100,209 @@ export const useAppStore = create<AppState>()(
             sidebarOpen: true,
 
             // User actions
-            setUser: (userData) => set((state) => ({
-                user: {
-                    ...state.user,
-                    ...userData,
-                    isLoggedIn: true,
-                },
-            })),
+            setUser: (userData) => {
+                set((state) => ({
+                    user: {
+                        ...state.user,
+                        ...userData,
+                        isLoggedIn: true,
+                    },
+                }));
+
+                // Load goals for the user
+                if (userData.id) {
+                    get().loadGoals();
+                }
+            },
 
             logout: () => set({
                 user: { isLoggedIn: false },
                 currentGoal: undefined,
+                goals: [],
             }),
 
-            // Goal/Task actions
-            addGoal: (goal) => set((state) => ({
-                goals: [
-                    ...state.goals,
-                    {
-                        ...goal,
-                        id: generateId(),
-                        tasks: [],
-                        createdAt: new Date(),
-                        updatedAt: new Date(),
-                    },
-                ],
-            })),
+            // Goal/Task actions with Firestore integration
+            loadGoals: async () => {
+                const { user } = get();
+                if (!user.id) return;
 
-            updateGoal: (goalId, updates) => set((state) => ({
-                goals: state.goals.map((goal) =>
-                    goal.id === goalId
-                        ? { ...goal, ...updates, updatedAt: new Date() }
-                        : goal
-                ),
-            })),
+                set({ isLoading: true });
+                try {
+                    const goals = await getUserGoals(user.id);
+                    set({ goals, isLoading: false });
+                } catch (error) {
+                    console.error('Failed to load goals:', error);
+                    set({ isLoading: false });
+                }
+            },
 
-            deleteGoal: (goalId) => set((state) => ({
-                goals: state.goals.filter((goal) => goal.id !== goalId),
-                currentGoal: state.currentGoal?.id === goalId ? undefined : state.currentGoal,
-            })),
+            addGoal: async (goal) => {
+                const { user } = get();
+                if (!user.id) throw new Error('User must be logged in to add a goal');
+
+                try {
+                    // First add to Firestore
+                    const goalId = await createFirestoreGoal(user.id, goal);
+
+                    // Then update local state
+                    set((state) => ({
+                        goals: [
+                            ...state.goals,
+                            {
+                                ...goal,
+                                id: goalId,
+                                tasks: [],
+                                createdAt: new Date(),
+                                updatedAt: new Date(),
+                            },
+                        ],
+                    }));
+
+                    return goalId;
+                } catch (error) {
+                    console.error('Failed to add goal:', error);
+                    throw error;
+                }
+            },
+
+            updateGoal: async (goalId, updates) => {
+                try {
+                    // First update in Firestore
+                    await updateFirestoreGoal(goalId, updates);
+
+                    // Then update local state
+                    set((state) => ({
+                        goals: state.goals.map((goal) =>
+                            goal.id === goalId
+                                ? { ...goal, ...updates, updatedAt: new Date() }
+                                : goal
+                        ),
+                    }));
+                } catch (error) {
+                    console.error('Failed to update goal:', error);
+                    throw error;
+                }
+            },
+
+            deleteGoal: async (goalId) => {
+                try {
+                    // First delete from Firestore
+                    await deleteFirestoreGoal(goalId);
+
+                    // Then update local state
+                    set((state) => ({
+                        goals: state.goals.filter((goal) => goal.id !== goalId),
+                        currentGoal: state.currentGoal?.id === goalId ? undefined : state.currentGoal,
+                    }));
+                } catch (error) {
+                    console.error('Failed to delete goal:', error);
+                    throw error;
+                }
+            },
 
             setCurrentGoal: (goalId) => set((state) => ({
                 currentGoal: state.goals.find((goal) => goal.id === goalId),
             })),
 
-            addTask: (goalId, task) => set((state) => {
-                const newTask = {
-                    ...task,
-                    id: generateId(),
-                    goalId,
-                    status: 'todo' as const,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                };
+            addTask: async (goalId, task) => {
+                try {
+                    // First add to Firestore
+                    const taskId = await addFirestoreTask(goalId, task);
 
-                return {
-                    goals: state.goals.map((goal) =>
-                        goal.id === goalId
-                            ? { ...goal, tasks: [...goal.tasks, newTask] }
-                            : goal
-                    ),
-                    currentGoal: state.currentGoal?.id === goalId
-                        ? { ...state.currentGoal, tasks: [...state.currentGoal.tasks, newTask] }
-                        : state.currentGoal,
-                };
-            }),
+                    const newTask = {
+                        ...task,
+                        id: taskId,
+                        goalId,
+                        status: 'todo' as const,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    };
 
-            updateTask: (taskId, updates) => set((state) => {
-                const updatedGoals = state.goals.map((goal) => ({
-                    ...goal,
-                    tasks: goal.tasks.map((task) =>
-                        task.id === taskId
-                            ? { ...task, ...updates, updatedAt: new Date() }
-                            : task
-                    ),
-                }));
+                    // Then update local state
+                    set((state) => ({
+                        goals: state.goals.map((goal) =>
+                            goal.id === goalId
+                                ? { ...goal, tasks: [...goal.tasks, newTask] }
+                                : goal
+                        ),
+                        currentGoal: state.currentGoal?.id === goalId
+                            ? { ...state.currentGoal, tasks: [...state.currentGoal.tasks, newTask] }
+                            : state.currentGoal,
+                    }));
 
-                return {
-                    goals: updatedGoals,
-                    currentGoal: state.currentGoal
-                        ? updatedGoals.find((goal) => goal.id === state.currentGoal?.id)
-                        : undefined,
-                };
-            }),
+                    return taskId;
+                } catch (error) {
+                    console.error('Failed to add task:', error);
+                    throw error;
+                }
+            },
 
-            deleteTask: (taskId) => set((state) => {
-                const updatedGoals = state.goals.map((goal) => ({
-                    ...goal,
-                    tasks: goal.tasks.filter((task) => task.id !== taskId),
-                }));
+            updateTask: async (taskId, updates) => {
+                try {
+                    // First update in Firestore
+                    await updateFirestoreTask(taskId, updates);
 
-                return {
-                    goals: updatedGoals,
-                    currentGoal: state.currentGoal
-                        ? updatedGoals.find((goal) => goal.id === state.currentGoal?.id)
-                        : undefined,
-                };
-            }),
+                    // Then update local state
+                    set((state) => {
+                        const updatedGoals = state.goals.map((goal) => ({
+                            ...goal,
+                            tasks: goal.tasks.map((task) =>
+                                task.id === taskId
+                                    ? { ...task, ...updates, updatedAt: new Date() }
+                                    : task
+                            ),
+                        }));
 
-            completeTask: (taskId) => get().updateTask(taskId, { status: 'completed' }),
+                        return {
+                            goals: updatedGoals,
+                            currentGoal: state.currentGoal
+                                ? updatedGoals.find((goal) => goal.id === state.currentGoal?.id)
+                                : undefined,
+                        };
+                    });
+                } catch (error) {
+                    console.error('Failed to update task:', error);
+                    throw error;
+                }
+            },
+
+            deleteTask: async (taskId) => {
+                try {
+                    // First delete from Firestore
+                    await deleteFirestoreTask(taskId);
+
+                    // Then update local state
+                    set((state) => {
+                        const updatedGoals = state.goals.map((goal) => ({
+                            ...goal,
+                            tasks: goal.tasks.filter((task) => task.id !== taskId),
+                        }));
+
+                        return {
+                            goals: updatedGoals,
+                            currentGoal: state.currentGoal
+                                ? updatedGoals.find((goal) => goal.id === state.currentGoal?.id)
+                                : undefined,
+                        };
+                    });
+                } catch (error) {
+                    console.error('Failed to delete task:', error);
+                    throw error;
+                }
+            },
+
+            completeTask: async (taskId) => {
+                try {
+                    // First complete in Firestore
+                    await completeFirestoreTask(taskId);
+
+                    // Then update local state using the updateTask method
+                    await get().updateTask(taskId, { status: 'completed' });
+                } catch (error) {
+                    console.error('Failed to complete task:', error);
+                    throw error;
+                }
+            },
 
             // Calendar actions
             setCalendarConnected: (connected) => set({ calendarConnected: connected }),

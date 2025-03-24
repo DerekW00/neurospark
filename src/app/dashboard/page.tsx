@@ -6,6 +6,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import Link from 'next/link';
 import { CheckCircleIcon, ClockIcon, CalendarIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { scheduleCheckIns } from '@/services/notification';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function DashboardPage() {
     const {
@@ -13,7 +14,8 @@ export default function DashboardPage() {
         todaysEnergy,
         checkIns,
         addCheckIn,
-        calendarEvents
+        calendarEvents,
+        isLoading
     } = useAppStore();
 
     const [showNewGoalPrompt, setShowNewGoalPrompt] = useState(false);
@@ -59,14 +61,24 @@ export default function DashboardPage() {
                 addCheckIn(checkIn);
             });
         }
-    }, [checkIns, addCheckIn]);
+    }, [checkIns, addCheckIn, today, endOfDay]);
+
+    if (isLoading) {
+        return (
+            <AppLayout>
+                <div className="h-64 flex items-center justify-center">
+                    <LoadingSpinner text="Loading your tasks..." />
+                </div>
+            </AppLayout>
+        );
+    }
 
     return (
         <AppLayout>
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-semibold text-[var(--foreground)]">Dashboard</h1>
-                    <span className="inline-flex items-center rounded-md bg-[var(--primary)] bg-opacity-10 px-2 py-1 text-xs font-medium text-[var(--primary)] ring-1 ring-inset ring-[var(--primary)] ring-opacity-20">
+                    <span className="inline-flex items-center rounded-md bg-[var(--primary)] bg-opacity-10 px-3 py-1.5 text-xs font-medium text-[var(--primary)] ring-1 ring-inset ring-[var(--primary)] ring-opacity-20">
                         {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
                     </span>
                 </div>
@@ -118,9 +130,20 @@ export default function DashboardPage() {
                 <div className="bg-[var(--card)] rounded-lg shadow-sm overflow-hidden">
                     <div className="px-4 py-3 bg-[var(--card-alt)] border-b border-[var(--border)] flex justify-between items-center">
                         <h2 className="font-medium text-[var(--foreground)]">Today's Tasks</h2>
-                        <Link href="/tasks" className="text-xs text-[var(--primary)] hover:text-[var(--primary)] hover:underline">
-                            View all
-                        </Link>
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => setShowNewGoalPrompt(true)}
+                                className="inline-flex items-center px-2 py-1 text-xs font-medium text-[var(--primary)] hover:underline"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                                </svg>
+                                Add Task
+                            </button>
+                            <Link href="/tasks" className="text-xs text-[var(--primary)] hover:text-[var(--primary)] hover:underline">
+                                View all
+                            </Link>
+                        </div>
                     </div>
 
                     {todaysTasks.length > 0 ? (
@@ -155,13 +178,6 @@ export default function DashboardPage() {
                     ) : (
                         <div className="p-6 text-center">
                             <p className="text-[var(--muted-foreground)]">No tasks scheduled for today</p>
-                            <button
-                                onClick={() => setShowNewGoalPrompt(true)}
-                                className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-[var(--primary)] bg-[var(--primary)] bg-opacity-10 hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
-                            >
-                                <PlusIcon className="h-4 w-4 mr-1" />
-                                Add Task
-                            </button>
                         </div>
                     )}
                 </div>

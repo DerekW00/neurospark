@@ -1,19 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import { useAppStore } from '@/store';
-import { getPendingCheckIns } from '@/services/notification';
+import { getPendingCheckIns, generateCheckInMessage } from '@/services/notification';
 
 export default function CheckInReminder() {
-    const { checkIns, completeCheckIn, skipCheckIn } = useAppStore();
+    const { checkIns, completeCheckIn, skipCheckIn, goals, todaysEnergy } = useAppStore();
     const [currentCheckIn, setCurrentCheckIn] = useState<typeof checkIns[0] | null>(null);
     const [isVisible, setIsVisible] = useState(false);
-
-    // Find any pending check-ins
+    
+    // Find pending check-ins and update their messages with current tasks
     useEffect(() => {
-        const pendingCheckIns = getPendingCheckIns(checkIns);
+        // Get all tasks for today
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(today);
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        // Get all tasks across all goals
+        const allTasks = goals.flatMap(goal => goal.tasks);
+        
+        // Filter for today's tasks
+        const todaysTasks = allTasks.filter(task => {
+            if (!task.startTime) return false;
+            const taskDate = new Date(task.startTime);
+            return taskDate >= today && taskDate <= endOfDay;
+        });
+        
+        // Get pending check-ins
+        const pendingCheckIns = getPendingCheckIns(checkIns).map(checkIn => {
+            // Update message based on current tasks and energy level
+            return {
+                ...checkIn,
+                message: generateCheckInMessage(checkIn.type, todaysTasks, todaysEnergy)
+            };
+        });
+        
         if (pendingCheckIns.length > 0 && !currentCheckIn) {
             setCurrentCheckIn(pendingCheckIns[0]);
             setIsVisible(true);
         }
+    }, [checkIns, currentCheckIn, goals, todaysEnergy]);
+    
+    // Check periodically for new check-ins (every 5 minutes)
+    useEffect(() => {
+        const checkInterval = setInterval(() => {
+            if (!currentCheckIn) {
+                const pendingCheckIns = getPendingCheckIns(checkIns);
+                if (pendingCheckIns.length > 0) {
+                    setCurrentCheckIn(pendingCheckIns[0]);
+                    setIsVisible(true);
+                }
+            }
+        }, 5 * 60 * 1000); // 5 minutes
+        
+        return () => clearInterval(checkInterval);
     }, [checkIns, currentCheckIn]);
 
     // Handle completing a check-in
