@@ -46,15 +46,15 @@ export default function CheckInReminder() {
 
     return (
         <div
-            className={`bg-indigo-100 border-l-4 border-indigo-500 p-4 transition-all duration-300 ${isVisible ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+            className={`bg-[var(--primary)] bg-opacity-10 border-l-4 border-[var(--primary)] p-4 transition-all duration-300 ${isVisible ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
                 }`}
         >
             <div className="flex items-start justify-between">
                 <div className="flex-1">
-                    <p className="text-sm font-medium text-indigo-800">
+                    <p className="text-sm font-medium text-[var(--foreground)]">
                         {currentCheckIn.message}
                     </p>
-                    <p className="mt-1 text-xs text-indigo-600">
+                    <p className="mt-1 text-xs text-[var(--muted-foreground)]">
                         {new Date(currentCheckIn.scheduledFor).toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit'
@@ -65,13 +65,13 @@ export default function CheckInReminder() {
                 <div className="flex space-x-2">
                     <button
                         onClick={handleComplete}
-                        className="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm hover:bg-indigo-700 transition-colors"
+                        className="bg-[var(--primary)] text-white px-3 py-1 rounded-md text-sm hover:bg-opacity-90 transition-colors"
                     >
                         Done
                     </button>
                     <button
                         onClick={handleSkip}
-                        className="bg-white text-indigo-600 px-3 py-1 rounded-md text-sm border border-indigo-300 hover:bg-indigo-50 transition-colors"
+                        className="bg-[var(--card)] text-[var(--primary)] px-3 py-1 rounded-md text-sm border border-[var(--primary)] border-opacity-30 hover:bg-[var(--card-alt)] transition-colors"
                     >
                         Later
                     </button>

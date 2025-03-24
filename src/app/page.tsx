@@ -19,10 +19,10 @@ export default function Home() {
 
   // Display a loading state while redirecting
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-indigo-600 mb-4">NeuroSpark</h1>
-        <p className="text-gray-500">Loading your experience...</p>
+        <h1 className="text-4xl font-bold text-[var(--primary)] mb-4">NeuroSpark</h1>
+        <p className="text-[var(--muted-foreground)]">Loading your experience...</p>
       </div>
     </div>
   );

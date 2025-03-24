@@ -65,8 +65,8 @@ export default function DashboardPage() {
         <AppLayout>
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                    <h1 className="text-2xl font-semibold text-[var(--foreground)]">Dashboard</h1>
+                    <span className="inline-flex items-center rounded-md bg-[var(--primary)] bg-opacity-10 px-2 py-1 text-xs font-medium text-[var(--primary)] ring-1 ring-inset ring-[var(--primary)] ring-opacity-20">
                         {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
                     </span>
                 </div>
@@ -74,10 +74,10 @@ export default function DashboardPage() {
                 {/* Energy level indicator */}
                 {todaysEnergy ? (
                     <div className={`p-4 rounded-lg border-l-4 ${todaysEnergy === 'low'
-                        ? 'bg-red-50 border-red-400 text-red-700'
+                        ? 'bg-[var(--low-energy)] border-[var(--danger)]'
                         : todaysEnergy === 'medium'
-                            ? 'bg-yellow-50 border-yellow-400 text-yellow-700'
-                            : 'bg-green-50 border-green-400 text-green-700'
+                            ? 'bg-[var(--medium-energy)] border-[var(--warning)]'
+                            : 'bg-[var(--high-energy)] border-[var(--success)]'
                         }`}>
                         <div className="flex">
                             <div className="flex-shrink-0">
@@ -86,7 +86,7 @@ export default function DashboardPage() {
                                 </span>
                             </div>
                             <div className="ml-3">
-                                <p className="text-sm font-medium">
+                                <p className="text-sm font-medium text-[var(--foreground)]">
                                     {todaysEnergy === 'low'
                                         ? 'Your energy is low today. Focus on one key task.'
                                         : todaysEnergy === 'medium'
@@ -94,7 +94,7 @@ export default function DashboardPage() {
                                             : 'Your energy is high today! Tackle challenging tasks now.'
                                     }
                                 </p>
-                                <p className="mt-1 text-xs">
+                                <p className="mt-1 text-xs text-[var(--muted-foreground)]">
                                     <Link href="/energy" className="font-medium underline">
                                         Update energy level
                                     </Link>
@@ -103,50 +103,50 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 ) : (
-                    <Link href="/energy" className="block p-4 bg-indigo-50 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition-colors">
-                        <h3 className="font-medium text-indigo-800 flex items-center">
+                    <Link href="/energy" className="block p-4 bg-[var(--primary)] bg-opacity-10 rounded-lg border border-[var(--primary)] border-opacity-20 hover:bg-opacity-15 transition-colors">
+                        <h3 className="font-medium text-[var(--primary)] flex items-center">
                             <span className="text-xl mr-2">⚡</span>
                             Log today's energy level
                         </h3>
-                        <p className="text-sm text-indigo-600 mt-1">
+                        <p className="text-sm text-[var(--muted-foreground)] mt-1">
                             Tracking your energy helps plan your day better
                         </p>
                     </Link>
                 )}
 
                 {/* Today's tasks */}
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                        <h2 className="font-medium text-gray-800">Today's Tasks</h2>
-                        <Link href="/tasks" className="text-xs text-indigo-600 hover:text-indigo-800">
+                <div className="bg-[var(--card)] rounded-lg shadow-sm overflow-hidden">
+                    <div className="px-4 py-3 bg-[var(--card-alt)] border-b border-[var(--border)] flex justify-between items-center">
+                        <h2 className="font-medium text-[var(--foreground)]">Today's Tasks</h2>
+                        <Link href="/tasks" className="text-xs text-[var(--primary)] hover:text-[var(--primary)] hover:underline">
                             View all
                         </Link>
                     </div>
 
                     {todaysTasks.length > 0 ? (
-                        <ul className="divide-y divide-gray-200">
+                        <ul className="divide-y divide-[var(--border)]">
                             {todaysTasks.map(task => (
                                 <li key={task.id} className="p-4 flex items-start">
                                     <div className="flex-shrink-0 pt-0.5">
-                                        <button className="h-5 w-5 rounded-full border border-gray-300 bg-white flex items-center justify-center">
+                                        <button className="h-5 w-5 rounded-full border border-[var(--border)] bg-[var(--card)] flex items-center justify-center">
                                             {task.status === 'completed' && (
-                                                <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                                                <CheckCircleIcon className="h-4 w-4 text-[var(--success)]" />
                                             )}
                                         </button>
                                     </div>
                                     <div className="ml-3 flex-1">
                                         <div className="flex items-center justify-between">
-                                            <p className={`text-sm font-medium ${task.status === 'completed' ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
+                                            <p className={`text-sm font-medium ${task.status === 'completed' ? 'text-[var(--muted)] line-through' : 'text-[var(--foreground)]'}`}>
                                                 {task.title}
                                             </p>
                                             {task.startTime && (
-                                                <span className="text-xs text-gray-500">
+                                                <span className="text-xs text-[var(--muted-foreground)]">
                                                     {new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             )}
                                         </div>
                                         {task.description && (
-                                            <p className="mt-1 text-xs text-gray-500">{task.description}</p>
+                                            <p className="mt-1 text-xs text-[var(--muted-foreground)]">{task.description}</p>
                                         )}
                                     </div>
                                 </li>
@@ -154,10 +154,10 @@ export default function DashboardPage() {
                         </ul>
                     ) : (
                         <div className="p-6 text-center">
-                            <p className="text-gray-500">No tasks scheduled for today</p>
+                            <p className="text-[var(--muted-foreground)]">No tasks scheduled for today</p>
                             <button
                                 onClick={() => setShowNewGoalPrompt(true)}
-                                className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-[var(--primary)] bg-[var(--primary)] bg-opacity-10 hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
                             >
                                 <PlusIcon className="h-4 w-4 mr-1" />
                                 Add Task
@@ -167,16 +167,16 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Goals progress */}
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                        <h2 className="font-medium text-gray-800">Your Goals</h2>
-                        <Link href="/tasks" className="text-xs text-indigo-600 hover:text-indigo-800">
+                <div className="bg-[var(--card)] rounded-lg shadow-sm overflow-hidden">
+                    <div className="px-4 py-3 bg-[var(--card-alt)] border-b border-[var(--border)] flex justify-between items-center">
+                        <h2 className="font-medium text-[var(--foreground)]">Your Goals</h2>
+                        <Link href="/tasks" className="text-xs text-[var(--primary)] hover:text-[var(--primary)] hover:underline">
                             Manage goals
                         </Link>
                     </div>
 
                     {goals.length > 0 ? (
-                        <ul className="divide-y divide-gray-200">
+                        <ul className="divide-y divide-[var(--border)]">
                             {goals.map(goal => {
                                 // Calculate progress
                                 const totalTasks = goal.tasks.length;
@@ -187,35 +187,35 @@ export default function DashboardPage() {
                                     <li key={goal.id} className="p-4">
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <h3 className="font-medium text-gray-800">{goal.title}</h3>
+                                                <h3 className="font-medium text-[var(--foreground)]">{goal.title}</h3>
                                                 {goal.dueDate && (
-                                                    <p className="text-xs text-gray-500 flex items-center mt-1">
+                                                    <p className="text-xs text-[var(--muted-foreground)] flex items-center mt-1">
                                                         <ClockIcon className="h-3 w-3 mr-1" />
                                                         Due {new Date(goal.dueDate).toLocaleDateString()}
                                                     </p>
                                                 )}
                                             </div>
                                             <span className={`text-xs font-medium px-2 py-1 rounded-full ${progressPercent === 100
-                                                ? 'bg-green-100 text-green-800'
+                                                ? 'bg-[var(--success)] bg-opacity-20 text-[var(--success)]'
                                                 : progressPercent > 50
-                                                    ? 'bg-blue-100 text-blue-800'
-                                                    : 'bg-gray-100 text-gray-800'
+                                                    ? 'bg-[var(--primary)] bg-opacity-20 text-[var(--primary)]'
+                                                    : 'bg-[var(--card-alt)] text-[var(--muted-foreground)]'
                                                 }`}>
                                                 {progressPercent}% complete
                                             </span>
                                         </div>
 
-                                        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                                        <div className="mt-2 w-full bg-[var(--card-alt)] rounded-full h-2">
                                             <div
                                                 className={`h-2 rounded-full ${progressPercent === 100
-                                                    ? 'bg-green-500'
-                                                    : 'bg-indigo-500'
+                                                    ? 'bg-[var(--success)]'
+                                                    : 'bg-[var(--primary)]'
                                                     }`}
                                                 style={{ width: `${progressPercent}%` }}
                                             ></div>
                                         </div>
 
-                                        <div className="mt-2 text-xs text-gray-500">
+                                        <div className="mt-2 text-xs text-[var(--muted-foreground)]">
                                             {completedTasks} of {totalTasks} tasks completed
                                         </div>
                                     </li>
@@ -224,10 +224,10 @@ export default function DashboardPage() {
                         </ul>
                     ) : (
                         <div className="p-6 text-center">
-                            <p className="text-gray-500">No goals created yet</p>
+                            <p className="text-[var(--muted-foreground)]">No goals created yet</p>
                             <Link
                                 href="/onboarding"
-                                className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                className="mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-[var(--primary)] bg-[var(--primary)] bg-opacity-10 hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
                             >
                                 <PlusIcon className="h-4 w-4 mr-1" />
                                 Create a Goal
@@ -237,25 +237,25 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Upcoming section */}
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                        <h2 className="font-medium text-gray-800">Coming Up</h2>
-                        <Link href="/calendar" className="text-xs text-indigo-600 hover:text-indigo-800">
+                <div className="bg-[var(--card)] rounded-lg shadow-sm overflow-hidden">
+                    <div className="px-4 py-3 bg-[var(--card-alt)] border-b border-[var(--border)] flex justify-between items-center">
+                        <h2 className="font-medium text-[var(--foreground)]">Coming Up</h2>
+                        <Link href="/calendar" className="text-xs text-[var(--primary)] hover:text-[var(--primary)] hover:underline">
                             View calendar
                         </Link>
                     </div>
 
                     {upcomingTasks.length > 0 ? (
-                        <ul className="divide-y divide-gray-200">
+                        <ul className="divide-y divide-[var(--border)]">
                             {upcomingTasks.slice(0, 3).map(task => (
                                 <li key={task.id} className="p-4 flex">
                                     <div className="flex-shrink-0 pt-0.5">
-                                        <CalendarIcon className="h-5 w-5 text-gray-400" />
+                                        <CalendarIcon className="h-5 w-5 text-[var(--muted)]" />
                                     </div>
                                     <div className="ml-3">
-                                        <p className="text-sm font-medium text-gray-800">{task.title}</p>
+                                        <p className="text-sm font-medium text-[var(--foreground)]">{task.title}</p>
                                         {task.startTime && (
-                                            <p className="text-xs text-gray-500">
+                                            <p className="text-xs text-[var(--muted-foreground)]">
                                                 {new Date(task.startTime).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                                 {' at '}
                                                 {new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -267,7 +267,7 @@ export default function DashboardPage() {
                         </ul>
                     ) : (
                         <div className="p-6 text-center">
-                            <p className="text-gray-500">No upcoming tasks in the next 7 days</p>
+                            <p className="text-[var(--muted-foreground)]">No upcoming tasks in the next 7 days</p>
                         </div>
                     )}
                 </div>

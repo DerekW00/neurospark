@@ -31,7 +31,7 @@ export default function CalendarView({ onSelectTask }: CalendarViewProps) {
         return allTasks.filter(task => {
             if (!task.startTime) return false;
 
-            const taskDate = new Date(task.startTime);
+            const taskDate = task.startTime instanceof Date ? task.startTime : new Date(task.startTime);
             return taskDate >= startOfDay && taskDate <= endOfDay;
         });
     };
@@ -47,7 +47,7 @@ export default function CalendarView({ onSelectTask }: CalendarViewProps) {
         endOfDay.setHours(23, 59, 59, 999);
 
         return calendarEvents.filter(event => {
-            const eventDate = new Date(event.start);
+            const eventDate = event.start instanceof Date ? event.start : new Date(event.start);
             return eventDate >= startOfDay && eventDate <= endOfDay;
         });
     };
@@ -104,16 +104,18 @@ export default function CalendarView({ onSelectTask }: CalendarViewProps) {
     const hourSlots = Array.from({ length: 24 }, (_, i) => i);
 
     // Format a date for display
-    const formatTime = (date: Date) => {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formatTime = (date: Date | string) => {
+        // Make sure we have a Date object
+        const dateObj = date instanceof Date ? date : new Date(date);
+        return dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
     // Check if a task is happening at a specific hour
     const isTaskInHour = (task: Task, hour: number) => {
         if (!task.startTime || !task.endTime) return false;
 
-        const taskStart = new Date(task.startTime);
-        const taskEnd = new Date(task.endTime);
+        const taskStart = task.startTime instanceof Date ? task.startTime : new Date(task.startTime);
+        const taskEnd = task.endTime instanceof Date ? task.endTime : new Date(task.endTime);
 
         const hourStart = new Date(selectedDate);
         hourStart.setHours(hour, 0, 0, 0);
@@ -130,8 +132,8 @@ export default function CalendarView({ onSelectTask }: CalendarViewProps) {
 
     // Check if a calendar event is happening at a specific hour
     const isEventInHour = (event: CalendarEvent, hour: number) => {
-        const eventStart = new Date(event.start);
-        const eventEnd = new Date(event.end);
+        const eventStart = event.start instanceof Date ? event.start : new Date(event.start);
+        const eventEnd = event.end instanceof Date ? event.end : new Date(event.end);
 
         const hourStart = new Date(selectedDate);
         hourStart.setHours(hour, 0, 0, 0);
@@ -226,8 +228,8 @@ export default function CalendarView({ onSelectTask }: CalendarViewProps) {
                     <button
                         onClick={() => setViewMode('day')}
                         className={`px-3 py-1 rounded-md text-sm ${viewMode === 'day'
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                             }`}
                     >
                         Day
@@ -235,8 +237,8 @@ export default function CalendarView({ onSelectTask }: CalendarViewProps) {
                     <button
                         onClick={() => setViewMode('week')}
                         className={`px-3 py-1 rounded-md text-sm ${viewMode === 'week'
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                             }`}
                     >
                         Week
