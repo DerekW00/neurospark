@@ -1,3 +1,5 @@
+'use client';
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Goal, Task, CheckIn, EnergyLog, CalendarEvent } from '../types';

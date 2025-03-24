@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { CheckCircleIcon, ClockIcon, CalendarIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { scheduleCheckIns } from '@/services/notification';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import NewTaskModal from '@/components/tasks/NewTaskModal';
 
 export default function DashboardPage() {
     const {
@@ -18,7 +19,7 @@ export default function DashboardPage() {
         isLoading
     } = useAppStore();
 
-    const [showNewGoalPrompt, setShowNewGoalPrompt] = useState(false);
+    const [showNewTaskModal, setShowNewTaskModal] = useState(false);
 
     // Get today's tasks
     const today = new Date();
@@ -132,7 +133,7 @@ export default function DashboardPage() {
                         <h2 className="font-medium text-[var(--foreground)]">Today's Tasks</h2>
                         <div className="flex items-center space-x-2">
                             <button
-                                onClick={() => setShowNewGoalPrompt(true)}
+                                onClick={() => setShowNewTaskModal(true)}
                                 className="inline-flex items-center px-2 py-1 text-xs font-medium text-[var(--primary)] hover:underline"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -288,6 +289,9 @@ export default function DashboardPage() {
                     )}
                 </div>
             </div>
+
+            {/* New Task Modal */}
+            <NewTaskModal isOpen={showNewTaskModal} onClose={() => setShowNewTaskModal(false)} />
         </AppLayout>
     );
 } 
