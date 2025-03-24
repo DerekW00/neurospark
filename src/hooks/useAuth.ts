@@ -11,6 +11,12 @@ export const useAuth = () => {
     const { setUser: setStoreUser, logout: logoutStore } = useAppStore();
 
     useEffect(() => {
+        // Check if auth is available (client-side only)
+        if (!auth) {
+            setLoading(false);
+            return;
+        }
+
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
             setLoading(true);
             if (firebaseUser) {
