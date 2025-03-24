@@ -58,14 +58,14 @@ export default function Navigation() {
     ];
 
     return (
-        <div className={`h-full bg-indigo-600 text-white ${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 flex flex-col`}>
+        <div className={`h-full bg-[var(--primary)] text-white ${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 flex flex-col`}>
             <div className="flex items-center justify-between p-4">
                 {sidebarOpen && (
                     <div className="text-xl font-bold">NeuroSpark</div>
                 )}
                 <button
                     onClick={toggleSidebar}
-                    className="p-2 rounded-md hover:bg-indigo-500 transition-colors"
+                    className="p-2 rounded-md hover:bg-[rgba(255,255,255,0.15)] transition-colors"
                 >
                     {sidebarOpen ? (
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -86,8 +86,8 @@ export default function Navigation() {
                             <Link
                                 href={item.href}
                                 className={`flex items-center p-3 rounded-md transition-colors ${item.current
-                                        ? 'bg-indigo-700 text-white'
-                                        : 'text-indigo-100 hover:bg-indigo-500'
+                                    ? 'bg-[rgba(255,255,255,0.2)] text-white'
+                                    : 'text-white hover:bg-[rgba(255,255,255,0.1)]'
                                     }`}
                             >
                                 <item.icon className="w-6 h-6 flex-shrink-0" />
@@ -101,12 +101,12 @@ export default function Navigation() {
             </nav>
 
             <div className="p-4">
-                <div className={`p-3 bg-indigo-700 rounded-md ${sidebarOpen ? 'flex items-center' : 'flex justify-center'}`}>
-                    <BoltIcon className="h-6 w-6 text-yellow-300" />
+                <div className={`p-3 bg-[rgba(255,255,255,0.15)] rounded-md ${sidebarOpen ? 'flex items-center' : 'flex justify-center'}`}>
+                    <BoltIcon className="h-6 w-6 text-white" />
                     {sidebarOpen && (
                         <div className="ml-3">
                             <div className="text-sm font-medium">Energy Level</div>
-                            <Link href="/energy" className="text-xs text-indigo-200 hover:text-white">
+                            <Link href="/energy" className="text-xs text-white opacity-80 hover:opacity-100">
                                 Log today
                             </Link>
                         </div>

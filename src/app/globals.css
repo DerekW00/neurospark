@@ -1,21 +1,107 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ADHD-Friendly Color Palette */
+  --background: #F0F4F7;
+  /* Cool Neutral Background */
+  --foreground: #333333;
+  /* Primary Text Color - dark charcoal gray */
+
+  /* Primary and accent colors */
+  --primary: #93BCD1;
+  /* Calm Blue for interactive elements */
+  --secondary: #ACD2B2;
+  /* Soothing Green for success/completion states */
+  --accent: #EBBF92;
+  /* Soft Orange for attention-grabbing elements, used sparingly */
+
+  /* Neutral tones */
+  --card: #FFFFFF;
+  /* Content Card/Secondary Background */
+  --card-alt: #F7F7F7;
+  /* Alternate card background */
+  --border: #E5E7EB;
+  /* Border color */
+  --muted: #B0B0B0;
+  /* For secondary text or icons */
+  --muted-foreground: #666666;
+  /* For placeholder text or labels */
+
+  /* Status colors (muted versions) */
+  --success: #ACD2B2;
+  /* Same as secondary */
+  --warning: #EBBF92;
+  /* Same as accent */
+  --danger: #E5A7A7;
+  /* Muted red for errors, used very sparingly */
+
+  /* Feedback colors */
+  --low-energy: rgba(229, 167, 167, 0.15);
+  /* Very light red background */
+  --medium-energy: rgba(235, 191, 146, 0.15);
+  /* Very light orange background */
+  --high-energy: rgba(172, 210, 178, 0.15);
+  /* Very light green background */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-card: var(--card);
+  --color-card-alt: var(--card-alt);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark mode - with reduced contrast and softer colors for ADHD-friendliness */
+    --background: #1E2A38;
+    /* Dark navy blue (less harsh than pure black) */
+    --foreground: #E5E7EB;
+    /* Off-white (slightly muted for less eye strain) */
+
+    --primary: #7C9CB3;
+    /* Darkened calm blue */
+    --secondary: #8EB698;
+    /* Darkened soothing green */
+    --accent: #D1A77D;
+    /* Darkened soft orange */
+
+    --card: #2A3747;
+    /* Card background - slightly lighter than main background */
+    --card-alt: #2F3D50;
+    /* Alternate card background */
+    --border: #3D4B5C;
+    /* Subtle border color */
+    --muted: #6B7280;
+    /* Muted color for secondary elements */
+    --muted-foreground: #9CA3AF;
+    /* Muted text color */
+
+    --success: #8EB698;
+    /* Same as secondary */
+    --warning: #D1A77D;
+    /* Same as accent */
+    --danger: #B98F8F;
+    /* Muted red for error states */
+
+    /* Feedback colors for dark mode */
+    --low-energy: rgba(185, 143, 143, 0.15);
+    /* Very subdued red background */
+    --medium-energy: rgba(209, 167, 125, 0.15);
+    /* Very subdued orange background */
+    --high-energy: rgba(142, 182, 152, 0.15);
+    /* Very subdued green background */
   }
 }
 
